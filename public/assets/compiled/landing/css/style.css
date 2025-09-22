@@ -1,0 +1,555 @@
+.bg-blue-uts {
+    background-color: #003056;
+}
+
+.bg-red-uts {
+    background-color: #c7251b;
+}
+
+.bg-blue-grey-uts {
+    background-color: #476782;
+}
+
+.bg-grey-uts {
+    background-color: #72767a;
+}
+
+.ft-red-uts {
+    color: #c7251b;
+}
+
+.font-small {
+    font-size: 9pt;
+}
+
+.font-middle {
+    font-size: 10pt;
+}
+
+body {
+    margin: 0;
+    font-family: Montserrat, sans-serif;
+    background-color: white;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    transition: all 0.3s ease;
+}
+
+/* Navbar awal */
+header .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px;
+    /* background: rgba(0, 0, 0, 0.5); */
+    /* background-color: rgba(255, 255, 255, 0.1); */
+    /* backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease; */
+    z-index: 9999;
+    color: white;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Setelah discroll */
+header.scrolled .navbar {
+    background: white;
+    color: black;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+header.scrolled .logo {
+    background-image: url("../img/logo_uts_default.png");
+}
+
+.logo {
+    display: block;
+    width: 220px;
+    height: 80px;
+    background-image: url("../img/logo_uts_white.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: background-image 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+
+/* Menu utama */
+.menu {
+    display: flex;
+    list-style: none;
+    column-gap: 10px;
+    padding-top: 10px;
+    padding-right: 25px;
+    font-weight: bold;
+    /* gap: 20px;
+    padding-top: 5px; */
+    /* position: relative; */
+}
+
+.menu > li {
+    list-style: none;
+    position: static;
+}
+
+.menu > li > a {
+    text-decoration: none;
+    color: inherit;
+    padding: 8px;
+    display: inline-block;
+}
+
+.menu > li:hover > a {
+    color: #003366;
+}
+
+/* Dropdown (mega menu) */
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 600px;
+    background: #003366; /* biru */
+    color: white;
+    display: none;
+    margin-left: 605px;
+    padding: 20px 30px;
+    box-sizing: border-box;
+    grid-template-columns: repeat(2, 1fr); /* 2 kolom */
+    gap: 20px;
+    z-index: 1000;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.menu > li:hover .dropdown {
+    display: grid;
+}
+
+.menu > li.open > .dropdown {
+    display: grid;
+}
+
+.dropdown a {
+    text-decoration: none;
+    color: white;
+    display: block;
+    padding: 8px 0;
+    font-weight: normal;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dropdown a:hover {
+    background-color: #002244; /* biru lebih gelap saat hover */
+    padding-left: 10px;
+    transition: all 0.2s ease;
+}
+
+/* Sembunyikan tombol menu di desktop */
+.menu-bar {
+    display: none;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* Konten dummy biar bisa discroll */
+/* Konten slider jadi full layar */
+.content {
+    margin-top: 0;
+    padding: 0;
+}
+
+.slider {
+    position: relative;
+    width: 100%;
+    height: 88vh; /* penuh layar */
+    overflow: hidden;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* biar teks rata kiri */
+    padding-left: 80px; /* kasih jarak dari kiri */
+}
+
+.slide.active {
+    opacity: 1;
+    z-index: 1;
+}
+
+.slide-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 33, 77, 0.6); /* overlay biru transparan */
+    z-index: 1;
+}
+
+.slide-text {
+    position: relative;
+    color: #fff;
+    max-width: 700px;
+    z-index: 2;
+}
+
+/* Dots navigation */
+.dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 2;
+}
+
+.dots span {
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.dots span.active {
+    background: #fff;
+}
+
+#announcement {
+    background-color: #003056;
+}
+
+#announcement .btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+}
+
+#announcement .btn:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+#announcement-wrapper {
+    transition: transform 0.6s ease;
+    min-width: 100%;
+}
+
+.announcement-item {
+    font-size: 9pt;
+    white-space: nowrap;
+    flex: 0 0 100%;
+}
+
+.custom-info-1 {
+    background-color: #003056; /* abu-abu muda bootstrap */
+    border-radius: 12px;
+    padding: 20px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+.custom-info-1::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px; /* tebal garis */
+    height: 100%;
+    background-color: #c7251b; /* biru bootstrap */
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.news-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.news-img {
+    width: 100%;
+    height: 250px; /* tinggi seragam */
+    object-fit: cover; /* biar rapi */
+    display: block;
+}
+
+.news-card .overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3));
+    color: white;
+}
+
+.news-card .news-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.wrapper_alumni {
+    max-width: auto;
+    width: 100%;
+    position: relative;
+    padding: 20px 40px;
+}
+.wrapper_alumni i {
+    top: 50%;
+    height: 50px;
+    width: 50px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    position: absolute;
+    text-align: center;
+    line-height: 50px;
+    background: #002244;
+    border-radius: 50%;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.23);
+    transform: translateY(-50%);
+    transition: transform 0.1s linear;
+}
+.wrapper_alumni i:active {
+    transform: translateY(-50%) scale(0.85);
+}
+.wrapper_alumni i:first-child {
+    left: -22px;
+}
+.wrapper_alumni i:last-child {
+    right: -22px;
+}
+.wrapper_alumni .carousel_alumni {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% / 4) - 7px);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    border-radius: 8px;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+.carousel_alumni::-webkit-scrollbar {
+    display: none;
+}
+.carousel_alumni.no-transition {
+    scroll-behavior: auto;
+}
+.carousel_alumni.dragging {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+}
+.carousel_alumni.dragging .card_alumni {
+    cursor: grab;
+    user-select: none;
+}
+.carousel_alumni :where(.card_alumni, .img) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.carousel_alumni .card_alumni {
+    scroll-snap-align: start;
+    height: 322px;
+    list-style: none;
+    background: #002244;
+    cursor: pointer;
+    padding-bottom: 15px;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+.carousel_alumni .card_alumni .img {
+    background: #c7251b;
+    height: 118px;
+    width: 118px;
+    border-radius: 50%;
+}
+.card_alumni .img img {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+}
+.carousel_alumni .card_alumni h3 {
+    font-weight: 500;
+    font-size: 1.3rem;
+    margin: 30px 0 5px;
+}
+.carousel_alumni .card_alumni span {
+    font-size: 1rem;
+}
+
+#footer {
+    position: relative;
+    background-image: url("../img/campus.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    z-index: 1;
+}
+
+#footer .bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 33, 77, 0.9); /* overlay biru transparan */
+    z-index: 0;
+}
+
+#footer .container,
+#footer .text-center {
+    position: relative;
+    z-index: 1; /* konten di atas overlay */
+}
+
+@media screen and (max-width: 900px) {
+    .wrapper_alumni .carousel_alumni {
+        grid-auto-columns: calc((100% / 2) - 9px);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .wrapper_alumni .carousel_alumni {
+        grid-auto-columns: 100%;
+    }
+}
+
+/* Responsif tablet/mobile */
+@media (max-width: 992px) {
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+
+    header .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px 0px;
+        background-color: white;
+    }
+
+    .logo {
+        display: block;
+        margin-left: 0px;
+        width: 110px;
+        height: 40px;
+        background-image: url("../img/logo_uts_default.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        transition: background-image 0.3s ease, width 0.3s ease,
+            height 0.3s ease;
+    }
+
+    /* Tampilkan tombol menu */
+    .menu-bar {
+        display: block;
+        font-size: 28px;
+        cursor: pointer;
+        color: black;
+        padding-bottom: 40px;
+        padding-right: 50px;
+    }
+
+    /* Menu ubah jadi vertical (hidden default) */
+    .menu {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        max-height: 0;
+        overflow-y: auto;
+        flex-direction: column;
+        gap: 0;
+        background: #003366;
+        color: white;
+        transition: max-height 0.3s ease;
+    }
+
+    /* Kalau aktif, menu terbuka */
+    .menu.active {
+        max-height: 80vh; /* bisa discroll */
+        padding: 15px 0;
+    }
+
+    .menu > li {
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .menu > li > a {
+        display: block;
+        padding: 12px 20px;
+        width: 100%;
+        color: white;
+    }
+
+    .menu > li > a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        display: grid;
+        color: #fff;
+    }
+
+    /* Dropdown jadi collapse */
+    .dropdown {
+        position: static;
+        display: none;
+        width: 100%;
+        margin: auto;
+        background: #002244;
+        grid-template-columns: 1fr; /* jadi 1 kolom */
+        padding: 10px 20px;
+        box-shadow: none;
+    }
+
+    .menu > li.open > .dropdown {
+        display: block;
+        max-height: 400px; /* biar bisa discroll */
+        overflow-y: auto;
+    }
+
+    .dropdown a {
+        padding: 8px 15px;
+        color: #fff;
+    }
+
+    .dropdown a:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+}
