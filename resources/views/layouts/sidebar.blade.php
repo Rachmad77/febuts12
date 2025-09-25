@@ -27,6 +27,11 @@
                     <a href="{{  route('master.blog-category.index')}}" class="submenu-link">Kategori Blog</a>
                 </li>
                 @endrole
+                @role('administrator')
+                <li class="submenu-item {{ request()->is('master/programstudi*') ? 'active' : '' }}">
+                     <a href="{{ route('master.programstudi.index') }}" class="submenu-link">Program Studi</a>
+                </li>
+                @endrole
             </ul>
         </li>
         @endhasanyrole
