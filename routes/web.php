@@ -6,6 +6,7 @@ use App\Http\Controllers\Adm\DashboardController;
 use App\Http\Controllers\Adm\PermissionController;
 use App\Http\Controllers\Adm\RoleController;
 use App\Http\Controllers\Adm\UserController;
+use App\Http\Controllers\Adm\ProgramStudiController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -65,6 +66,14 @@ Route::middleware('auth')->group(function () {
         Route::delete('/page-category/{id}', [CategoryPageController::class, 'destroy'])->name('page-category.destroy');
         Route::put('/page-category/restore/{id}', [CategoryPageController::class, 'restore'])->name('page-category.restore');
         Route::delete('/page-category/force-delete/{id}', [CategoryPageController::class, 'forceDelete'])->name('page-category.force-delete');
+
+        Route::get('/programstudi', [ProgramStudiController::class, 'index'])->name('programstudi.index');
+        Route::post('/programstudi', [ProgramStudiController::class, 'store'])->name('programstudi.store');
+        Route::get('/programstudi/{id}', [ProgramStudiController::class, 'edit'])->name('programstudi.edit');
+        Route::put('/programstudi/{id}', [ProgramStudiController::class, 'update'])->name('programstudi.update');
+        Route::delete('/programstudi/{id}', [ProgramStudiController::class, 'destroy'])->name('programstudi.destroy');
+        Route::put('/programstudi/restore/{id}', [ProgramStudiController::class, 'restore'])->name('programstudi.restore');
+        Route::delete('/programstudi/force-delete/{id}', [ProgramStudiController::class, 'forceDelete'])->name('programstudi.force-delete');
     });
 });
 
