@@ -262,7 +262,18 @@
                         }
                     },
                     error: function(response) {
-                        $('#name_error').text(res.responseJSON.errors.name);
+                        console.log(response); // debug di console browser
+
+                        if (response.status === 422) { // error validasi Laravel
+                            let errors = response.responseJSON.errors;
+
+                            if (errors && errors.name) {
+                                $('#name_error').text(errors.name[0]);
+                                toastr.error(errors.name[0], 'Error');
+                            }
+                        } else {
+                            toastr.error(response.responseJSON.message ?? 'Terjadi kesalahan tidak diketahui', 'Error');
+                        }
                         $('#btn-save').prop('disabled', false); // enable tombol lagi
                     }
                 });
@@ -281,7 +292,15 @@
                     $('#id').val(response.data.id);
                 },
                 error: function(response) {
-                    toastr.error(response.responseJSON.message, 'Terjadi Kesalahan');
+                    if (response.status === 422) {
+                        let errors = response.responseJSON.errors;
+                        if (errors && errors.name) {
+                            $('#name_error').text(errors.name[0]); // ambil pesan pertama
+                            toastr.error(errors.name[0], 'Error'); // biar muncul di toastr juga
+                        }
+                    } else {
+                        toastr.error(response.responseJSON.message ?? 'Terjadi kesalahan tidak diketahui', 'Error');
+                    }
                 }
             })
         });
@@ -345,15 +364,9 @@
                         },
                         success: function(response) {
                             toastr.success('success', response.message);
-                            // reload datatable aja, tanpa reload halaman
-                             $('#programstudi').DataTable().ajax.reload();
-
-                            // reset form biar bersih
-                            resetForm();
-                            $('#modal-form').modal('hide');
-                            // setTimeout(function() {
-                            //     window.location.reload();
-                            // }, 1000);
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 1000);
                         },
                         error: function(err) {
                             toastr.error('Error', 'Something went wrong');
