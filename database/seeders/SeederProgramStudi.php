@@ -23,6 +23,10 @@ Class SeederProgramStudi extends Seeder
                 'name' => 'Program Studi Manajemen',
                 'slug' => 'Program Studi Manajemen',
             ],
+            [
+                'name' => 'Program Studi Ilmu Ekonomi',
+                'slug' => 'Program Studi Ilmu Ekonomi',
+            ],
         ];
 
         foreach($data as $item){

@@ -53,23 +53,25 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="name" class="form-label text-capitalize">Program Studi</label>
-                                            <input type="text" class="form-control" name="name" id="name">
-                                            <span class="text-danger" id="name_error"></span>
-                                            <input type="hidden" id="id" name="id">
+                                <form id="form-programstudi">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="name" class="form-label text-capitalize">Program Studi</label>
+                                                <input type="text" class="form-control" name="name" id="name">
+                                                <span class="text-danger" id="name_error"></span>
+                                                <input type="hidden" id="id" name="id">
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
                                     <i class="bx bx-x d-block d-sm-none"></i>
                                     <span class="d-none d-sm-block">Close</span>
                                 </button>
-                                <button type="button" class="btn btn-primary ms-1 btn-action" id="btnSimpan">
+                                <button type="button" class="btn btn-primary ms-1 btn-action" id="btn-save">
                                     <i class="bx bx-check d-block d-sm-none"></i>
                                     <span class="d-none d-sm-block">Simpan</span>
                                 </button>
@@ -171,10 +173,18 @@
         }, 4000);
 
         function resetForm() {
-            $('#name').val('');
-            $('#id').val('');
+            // reset form input
+            $('#form-programstudi')[0].reset();
+
+            // hapus error message kalau ada
             $('#name_error').text('');
-            $('.btn-action').attr('id', '');
+
+            // pastikan tombol save aktif lagi
+            $('#btn-save').prop('disabled', false);
+            // $('#name').val('');
+            // $('#id').val('');
+            // $('#name_error').text('');
+            // $('.btn-action').attr('id', '');
         }
 
         $.ajaxSetup({
@@ -214,11 +224,18 @@
 
 
         $('#add-show-form').click(function() {
+            resetForm();
             $('#modal-form').modal('show');
-            $('.btn-action').attr('id', 'btn-save');
+            $('#btn-save').prop('disabled', false);
+            // $('#name').val('');
+            // $('#name_error').text('');
+            // $('#btn-save').prop('disabled', false);
+            // $('.btn-action').attr('id', 'btn-save');
+        });
 
-            $(document).on('click', '#btn-save', function(e) {
+        $(document).on('click', '#btn-save', function(e) {
                 e.preventDefault();
+                $(this).prop('disabled', true); //disable tombol dari klik berkali-kali
                 console.log('sukses');
                 var formData = new FormData();
 
@@ -236,18 +253,20 @@
                             $('#programstudi').DataTable().ajax.reload();
                             toastr.success(response.message, 'Success');
 
-                            $('#modal-form').modal('hide');
                             resetForm();
+                            $('#modal-form').modal('hide');
+                            $('#btn-save').prop('disabled', false); // enable tombol lagi
                         } else {
                             toastr.error("Something went wrong", 'Error');
+                            $('#btn-save').prop('disabled', false); // enable tombol lagi
                         }
                     },
                     error: function(response) {
                         $('#name_error').text(res.responseJSON.errors.name);
+                        $('#btn-save').prop('disabled', false); // enable tombol lagi
                     }
                 });
             });
-        });
 
         $('#programstudi').on("click", "#btn-edit", function(e) {
             let id = $(this).data("id");
@@ -326,9 +345,15 @@
                         },
                         success: function(response) {
                             toastr.success('success', response.message);
-                            setTimeout(function() {
-                                window.location.reload();
-                            }, 1000);
+                            // reload datatable aja, tanpa reload halaman
+                             $('#programstudi').DataTable().ajax.reload();
+
+                            // reset form biar bersih
+                            resetForm();
+                            $('#modal-form').modal('hide');
+                            // setTimeout(function() {
+                            //     window.location.reload();
+                            // }, 1000);
                         },
                         error: function(err) {
                             toastr.error('Error', 'Something went wrong');
@@ -336,6 +361,18 @@
                     });
                 }
             });
+        });
+
+        $('#form-programstudi').on('keydown', function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // cegah reload page
+
+                if ($('#btn-update').length && $('#btn-update').is(':visible')) {
+                    $('#btn-update').click(); // kalau lagi edit
+                } else {
+                    $('#btn-save').click();   // kalau lagi tambah
+                }
+            }
         });
 
         $('#show-recycle-form').click(function(e) {
