@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Adm;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
 
 class BlogCategoryRequest extends FormRequest
 {
@@ -21,8 +23,23 @@ class BlogCategoryRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->id ?? null; // ambil ID dari input hidden di form
         return [
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('blog_categories', 'name')->ignore($id),
+            ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Nama Kategori Blog wajib diisi.',
+            'name.unique'   => 'Data Kategori Blog sudah ada.',
+            'name.max'      => 'Nama Kategori Blog maksimal 255 karakter.',
         ];
     }
 }

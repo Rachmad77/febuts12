@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Adm;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PageCategoryRequest extends FormRequest
 {
@@ -21,8 +22,23 @@ class PageCategoryRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->id ?? null; // ambil ID dari input hidden di form
         return [
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('page_categories', 'name')->ignore($id),
+            ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Nama Kategori Halaman wajib diisi.',
+            'name.unique'   => 'Data Kategori Halaman sudah ada.',
+            'name.max'      => 'Nama Kategori Halaman maksimal 255 karakter.',
         ];
     }
 }

@@ -187,6 +187,11 @@
             // $('.btn-action').attr('id', '');
         }
 
+        // reset form & error setiap kali modal ditutup
+        $('#modal-form').on('hidden.bs.modal', function () {
+            resetForm();
+        });
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
