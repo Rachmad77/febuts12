@@ -16,9 +16,10 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call([
+            SeederProgramStudi::class,
             SeederUsers::class,
             SeederPageCategory::class,
-            SeederBlogCategory::class,
+            SeederBlogCategory::class,            
         ]);
     }
 }

@@ -5,9 +5,9 @@ namespace App\Http\Requests\Adm;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-Class ProgramStudiRequest extends FormRequest
+class ProgramStudiRequest extends FormRequest
 {
-     /**
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
@@ -22,8 +22,15 @@ Class ProgramStudiRequest extends FormRequest
      */
     public function rules(): array
     {
-         $id = $this->id ?? null; // ambil ID dari input hidden di form
+        $id = $this->id ?? null; // ambil ID dari hidden input atau route parameter
+
         return [
+            'code' => [
+                'required',
+                'string',
+                'max:10',
+                Rule::unique('program_studi', 'code')->ignore($id),
+            ],
             'name' => [
                 'required',
                 'string',
@@ -36,8 +43,12 @@ Class ProgramStudiRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'code.required' => 'Kode program studi wajib diisi.',
+            'code.unique'   => 'Kode program studi sudah ada.',
+            'code.max'      => 'Kode program studi maksimal 10 karakter.',
+
             'name.required' => 'Nama program studi wajib diisi.',
-            'name.unique'   => 'Data program studi sudah ada.',
+            'name.unique'   => 'Nama program studi sudah ada.',
             'name.max'      => 'Nama program studi maksimal 255 karakter.',
         ];
     }

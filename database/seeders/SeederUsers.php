@@ -28,6 +28,7 @@ class SeederUsers extends Seeder
 
             // create user account
             $administrator  = User::create(array_merge([
+
                 'email'     =>  'administrator@gmail.com',
                 'name'      =>  'administrator',
             ], $default_user_value));
@@ -35,6 +36,18 @@ class SeederUsers extends Seeder
             $admin  = User::create(array_merge([
                 'email'     =>  'admin@utssurabaya.ac.id',
                 'name'      =>  'admin',
+            ], $default_user_value));
+
+            $adminakuntansi  = User::create(array_merge([
+                'program_studi_id' => 1,
+                'email'     =>  'adminakuntansi@utssurabaya.ac.id',
+                'name'      =>  'admin akuntansi',
+            ], $default_user_value));
+
+             $adminmanajemen  = User::create(array_merge([
+                'program_studi_id' => 1,
+                'email'     =>  'adminmanajemen@utssurabaya.ac.id',
+                'name'      =>  'admin manajemen',
             ], $default_user_value));
 
 
@@ -46,6 +59,8 @@ class SeederUsers extends Seeder
             $administrator->assignRole($role_administrator);
 
             $admin->assignRole($role_admin);
+            $adminakuntansi->assignRole($role_admin);
+            $adminmanajemen->assignRole($role_admin);
 
             //create permission
             $permissions = [

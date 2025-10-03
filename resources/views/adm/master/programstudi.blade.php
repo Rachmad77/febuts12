@@ -34,9 +34,6 @@
                         <button type="button" class="btn btn-primary block" data-bs-toggle="modal" id="add-show-form">
                             Tambah Data
                         </button>
-                        <button type="button" class="btn btn-warning block" data-bs-toggle="modal" id="show-recycle-form">
-                            <i class="bi bi-recycle"></i>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -56,6 +53,14 @@
                                 <form id="form-programstudi">
                                     <div class="row">
                                         <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="code" class="form-label">Kode</label>
+                                                    <input type="text" class="form-control" name="code" id="code">
+                                                    <span class="text-danger" id="code_error"></span>
+                                                </div>
+                                            </div>
+
+                                        <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="name" class="form-label text-capitalize">Program Studi</label>
                                                 <input type="text" class="form-control" name="name" id="name">
@@ -63,9 +68,33 @@
                                                 <input type="hidden" id="id" name="id">
                                             </div>
                                         </div>
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="email" class="form-label">Email</label>
+                                                <input type="email" class="form-control" name="email" id="email">
+                                                <span class="text-danger" id="email_error"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="phone" class="form-label">Nomor Telepon</label>
+                                                <input type="text" class="form-control" name="phone" id="phone">
+                                                <span class="text-danger" id="phone_error"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" name="is_active" id="is_active" value="1" checked>
+                                                <label class="form-check-label" for="is_active">Aktif</label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
+
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
                                     <i class="bx bx-x d-block d-sm-none"></i>
@@ -80,74 +109,16 @@
                     </div>
                 </div>
 
-                <!-- <script>
-                document.getElementById("btnSimpan").addEventListener("click", function() {
-                    this.disabled = true;
-                    this.innerText = "Menyimpan...";
-                    this.form.submit();
-                });
-                </script> -->
-
-                <!-- modal recycle form -->
-                <div class="modal fade" id="recycle-form" tabindex="-1" role="dialog" aria-labelledby="modal_formTitle" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="modal_formTitle">Recycle Program Studi
-                                </h5>
-                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                    <i data-feather="x"></i>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">
-                                    <table class="table" id="recycle-programstudi">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col" class="text-center text-nowrap">No</th>
-                                                <th scope="col" class="text-start text-nowrap">Nama Program Studi</th>
-                                                <th scope="col" class="text-start text-nowrap">Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($recycle as $item)
-                                            <tr>
-                                                <td class="text-center">{{ $loop->iteration }}</td>
-                                                <td>{{ $item->name }}</td>
-                                                <td>
-                                                    <button type="button" class="btn btn-success btn-sm btn-restore" data-id="{{ $item->id }}">
-                                                        <i class="bi bi-arrow-counterclockwise"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-danger btn-sm btn-force-delete" data-id="{{ $item->id }}">
-                                                        <i class="bi bi-x-circle-fill"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            @empty
-                                            <tr>
-                                                <td colspan="3" class="text-center">Tidak ada data</td>
-                                            </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
-                                    <i class="bx bx-x d-block d-sm-none"></i>
-                                    <span class="d-none d-sm-block">Close</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="table-responsive">
                     <table class="table" id="programstudi">
                         <thead>
                             <tr>
                                 <th scope="col" class="text-center text-nowrap">No</th>
+                                <th scope="col" class="text-center text-nowrap">Kode</th>
                                 <th scope="col" class="text-start text-nowrap">Nama Program Studi</th>
+                                <th scope="col" class="text-center text-nowrap">Email</th>
+                                <th scope="col" class="text-center text-nowrap">Nomor Telepon</th>
+                                <th scope="col" class="text-center text-nowrap">Status</th>
                                 <th scope="col" class="text-start text-nowrap">Aksi</th>
                             </tr>
                         </thead>
@@ -200,33 +171,32 @@
 
         $('#programstudi').DataTable({
             processing: true,
+            serverSide: true, // ✅ fix huruf S
             ordering: false,
-            serverside: false,
             ajax: {
-                url: "{{  route('master.programstudi.index') }}",
+                url: "{{ route('master.programstudi.index') }}",
                 type: 'GET',
             },
             responsive: true,
-            columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex',
-                    orderable: false,
-                    searchable: false,
-                    className: 'text-center',
-                },
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-center' },
+                { data: 'code', name: 'code', className: 'text-center' },
+                { data: 'name', name: 'name', className: 'text-start' },
+                { data: 'email', name: 'email', className: 'text-center' },
+                { data: 'phone', name: 'phone', className: 'text-center' },
                 {
-                    data: 'name',
-                    name: 'name',
-                },
-                {
-                    data: 'action',
-                    name: 'action',
+                    data: 'is_active',
+                    name: 'is_active',
                     className: 'text-center',
-
+                    render: function(data) {
+                        return data == 1
+                            ? '<span class="badge bg-success">Aktif</span>'
+                            : '<span class="badge bg-danger">Tidak Aktif</span>';
+                    }
                 },
+                { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
             ],
         });
-
 
         $('#add-show-form').click(function() {
             resetForm();
@@ -245,6 +215,11 @@
                 var formData = new FormData();
 
                 formData.append('name', $('#name').val());
+                formData.append('code', $('#code').val());
+                formData.append('email', $('#email').val());
+                formData.append('phone', $('#phone').val());
+                formData.append('is_active', $('#is_active').is(':checked') ? 1 : 0);
+
 
                 $.ajax({
                     url: "{{ route('master.programstudi.store') }}",
@@ -272,9 +247,21 @@
                         if (response.status === 422) { // error validasi Laravel
                             let errors = response.responseJSON.errors;
 
+                            if (errors.code) {
+                                $('#code_error').text(errors.code[0]);
+                                toastr.error(errors.code[0], 'Error');
+                            }
                             if (errors && errors.name) {
                                 $('#name_error').text(errors.name[0]);
                                 toastr.error(errors.name[0], 'Error');
+                            }
+                            if (errors.email) {
+                                $('#email_error').text(errors.email[0]);
+                                toastr.error(errors.email[0], 'Error');
+                            }
+                            if (errors.phone) {
+                                $('#phone_error').text(errors.phone[0]);
+                                toastr.error(errors.phone[0], 'Error');
                             }
                         } else {
                             toastr.error(response.responseJSON.message ?? 'Terjadi kesalahan tidak diketahui', 'Error');
@@ -293,33 +280,58 @@
                 success: function(response) {
                     $('.btn-action').attr('id', 'btn-update');
                     $('#modal-form').modal('show');
-                    $('#name').val(response.data.name);
+
+                    // isi semua field dari response
                     $('#id').val(response.data.id);
+                    $('#code').val(response.data.code);
+                    $('#name').val(response.data.name);
+                    $('#email').val(response.data.email);
+                    $('#phone').val(response.data.phone);
+                    $('#is_active').prop('checked', response.data.is_active == 1);
                 },
+
                 error: function(response) {
                     if (response.status === 422) {
                         let errors = response.responseJSON.errors;
-                        if (errors && errors.name) {
-                            $('#name_error').text(errors.name[0]); // ambil pesan pertama
-                            toastr.error(errors.name[0], 'Error'); // biar muncul di toastr juga
+                        if (errors.code) {
+                                $('#code_error').text(errors.code[0]);
+                                toastr.error(errors.code[0], 'Error');
+                            }
+                            if (errors && errors.name) {
+                                $('#name_error').text(errors.name[0]);
+                                toastr.error(errors.name[0], 'Error');
+                            }
+                            if (errors.email) {
+                                $('#email_error').text(errors.email[0]);
+                                toastr.error(errors.email[0], 'Error');
+                            }
+                            if (errors.phone) {
+                                $('#phone_error').text(errors.phone[0]);
+                                toastr.error(errors.phone[0], 'Error');
+                            }
+                        } else {
+                            toastr.error(response.responseJSON.message ?? 'Terjadi kesalahan tidak diketahui', 'Error');
                         }
-                    } else {
-                        toastr.error(response.responseJSON.message ?? 'Terjadi kesalahan tidak diketahui', 'Error');
-                    }
                 }
             })
         });
 
         $('body').on('click', '#btn-update', function(e) {
+            e.preventDefault(); // ⬅️ ini penting biar tombol/enter gak reload form
+
             var id = $('#id').val();
             var formData = new FormData();
 
             formData.append('_method', 'PUT');
             formData.append('name', $('#name').val());
+            formData.append('code', $('#code').val());
+            formData.append('email', $('#email').val());
+            formData.append('phone', $('#phone').val());
+            formData.append('is_active', $('#is_active').is(':checked') ? 1 : 0);
 
             $.ajax({
                 url: '/master/programstudi/' + id,
-                type: 'POST',
+                type: 'POST', // tetap POST karena _method:PUT
                 data: formData,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -340,7 +352,27 @@
                     }
                 },
                 error: function(response) {
-                    $('#name_error').text(response.responseJSON.errors.name);
+                    if (response.status === 422) {
+                        let errors = response.responseJSON.errors;
+                        if (errors.name) {
+                            $('#name_error').text(errors.name[0]);
+                            toastr.error(errors.name[0], 'Error');
+                        }
+                        if (errors.code) {
+                            $('#code_error').text(errors.code[0]);
+                            toastr.error(errors.code[0], 'Error');
+                        }
+                        if (errors.email) {
+                            $('#email_error').text(errors.email[0]);
+                            toastr.error(errors.email[0], 'Error');
+                        }
+                        if (errors.phone) {
+                            $('#phone_error').text(errors.phone[0]);
+                            toastr.error(errors.phone[0], 'Error');
+                        }
+                    } else {
+                        toastr.error(response.responseJSON.message ?? 'Terjadi kesalahan tidak diketahui', 'Error');
+                    }
                 }
             });
         });
@@ -391,66 +423,6 @@
                     $('#btn-save').click();   // kalau lagi tambah
                 }
             }
-        });
-
-        $('#show-recycle-form').click(function(e) {
-            e.preventDefault();
-            $('#recycle-form').modal('show');
-
-            $(document).on('click', '.btn-restore', function() {
-                let id = $(this).data('id');
-
-                Swal.fire({
-                    title: "Yakin ingin mengembalikan data ini?",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Ya, Kembalikan!",
-                    cancelButtonText: "Batal"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: '/master/programstudi/restore/' + id,
-                            type: 'PUT',
-                            success: function(res) {
-                                toastr.success(res.message);
-                                location.reload();
-                            },
-                            error: function() {
-                                toastr.error('Gagal mengembalikan data');
-                            }
-                        });
-                    }
-                });
-            });
-
-            $(document).on('click', '.btn-force-delete', function() {
-                let id = $(this).data('id');
-
-                Swal.fire({
-                    title: "Yakin ingin menghapus permanen data ini?",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Ya, Hapus!",
-                    cancelButtonText: "Batal"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: '/master/programstudi/force-delete/' + id,
-                            type: 'DELETE',
-                            data: {
-                                _token: "{{ csrf_token() }}"
-                            },
-                            success: function(res) {
-                                toastr.success(res.message);
-                                location.reload();
-                            },
-                            error: function() {
-                                toastr.error('Gagal menghapus data');
-                            }
-                        });
-                    }
-                });
-            });
         });
     });
 </script>

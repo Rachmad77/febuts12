@@ -12,20 +12,18 @@ Class SeederProgramStudi extends Seeder
     {
         $data = [
             [
-                'name' => 'Magister Manajemen',
-                'slug' => 'Magister Manajemen',
-            ],
-            [
+                'code' => 'akuntansi',
                 'name' => 'Program Studi Akuntansi',
                 'slug' => 'Program Studi Akuntansi',
+                'email' => 'akuntansi@utssurabaya.ac.id',
+                'phone' => '031-5269235',
             ],
             [
+                'code' => 'manajemen',
                 'name' => 'Program Studi Manajemen',
                 'slug' => 'Program Studi Manajemen',
-            ],
-            [
-                'name' => 'Program Studi Ilmu Ekonomi',
-                'slug' => 'Program Studi Ilmu Ekonomi',
+                'email' => 'manajemen@utssurabaya.ac.id',
+                'phone' => '031-7821358',
             ],
         ];
 

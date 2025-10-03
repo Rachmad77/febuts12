@@ -4,17 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class ProgramStudi extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $table        = 'program_studi';
     protected $primaryKey   = 'id';
     protected $fillable     = [
-        'name'
+        'code',
+        'name',
+        'slug',
+        'email',
+        'phone',
+        'is_active'
     ];
 
 
@@ -38,5 +42,10 @@ class ProgramStudi extends Model
         }
 
         return $slug;
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'program_studi_id');
     }
 }

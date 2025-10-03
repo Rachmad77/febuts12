@@ -14,30 +14,30 @@ class ProgramStudiController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $data = ProgramStudi::all();
+{
+    $data = ProgramStudi::select('id','code','name','email','phone','is_active');
 
-        if (request()->ajax()) {
-
-            return DataTables::of($data)
-                ->addColumn('name', function ($row) {
-                    return $row->name;
-                })
-                ->addColumn('action', function ($data) {
-                    $button  = '<a href="javascript:void(0)" data-id="' . $data->id . '" class="btn btn-sm btn-circle btn-primary" id="btn-edit"><i class="bi bi-pen-fill"></i></a>';
-                    $button .= '&nbsp;&nbsp;';
-                    $button .= '<a href="javascript:void(0)" data-id="' . $data->id . '" class="btn btn-sm btn-circle btn-danger" id="btn-delete"><i class="bi bi-trash"></i></a>';
-
-                    return $button;
-                })
-                ->rawColumns(['action'])
-                ->addIndexColumn()
-                ->make(true);
-        }
-
-        $recycle = ProgramStudi::onlyTrashed()->get();
-        return view('adm.master.programstudi', compact('recycle'));
+    if (request()->ajax()) {
+        return DataTables::of($data)
+            ->addColumn('action', function ($row) {
+                return '
+                    <div class="d-flex justify-content-center gap-1">
+                        <a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-sm btn-circle btn-primary" id="btn-edit">
+                            <i class="bi bi-pen-fill"></i>
+                        </a>
+                        <a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-sm btn-circle btn-danger" id="btn-delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                ';
+            })
+            ->rawColumns(['action'])
+            ->addIndexColumn()
+            ->make(true);
     }
+    return view('adm.master.programstudi');
+}
+
     /**
      * Show the form for creating a new resource.
      */
@@ -67,7 +67,13 @@ class ProgramStudiController extends Controller
        $validatedData = $request->validated();
 
         $data = ProgramStudi::create([
+            'code'          =>  $validatedData['code'],
             'name'          =>  $validatedData['name'],
+            'slug'          =>  Str::slug($validatedData['name']), // generate slug otomatis
+            'email'         =>  $validatedData['email'] ?? null, // bisa nullable
+            'phone'         =>  $validatedData['phone'] ?? null, // bisa nullable
+            // 'is_active' =>  $request->has('is_active') ? 1 : 0,
+            'is_active'     =>  $validatedData['is_active'] ?? true, // default aktif
         ]);
 
         if ($data) {
@@ -102,6 +108,7 @@ class ProgramStudiController extends Controller
         ]);
     }
 
+
     /**
      * Update the specified resource in storage.
      */
@@ -110,7 +117,13 @@ class ProgramStudiController extends Controller
         $validatedData = $request->validated();
         $data = ProgramStudi::findOrFail($id);
         $data->update([
+            'code'  => $validatedData['code'],
             'name'  => $validatedData['name'],
+            'slug'  => \Str::slug($validatedData['name']), // update slug juga biar konsisten
+            'email'     => $request->filled('email') ? $request->input('email') : $data->email,
+            'phone'     => $request->filled('phone') ? $request->input('phone') : $data->phone,
+            // 'is_active' =>  $request->has('is_active') ? 1 : 0,
+            'is_active' => $validatedData['is_active'] ?? true, // default aktif
         ]);
 
         if ($data) {

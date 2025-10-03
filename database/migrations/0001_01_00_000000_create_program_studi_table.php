@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('program_studi', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->unique();
             $table->string('name');
+            $table->string('slug')->unique();
+            $table->string('email')->unique();
+            $table->string('phone')->nullable();
+            $table->boolean('is_active')->default(true);  
             $table->timestamps();
         });
     }
