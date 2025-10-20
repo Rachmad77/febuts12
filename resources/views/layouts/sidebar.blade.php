@@ -32,6 +32,11 @@
                      <a href="{{ route('master.programstudi.index') }}" class="submenu-link">Program Studi</a>
                 </li>
                 @endrole
+                @role('administrator')
+                <li class="submenu-item {{ request()->is('master/category_tag*') ? 'active' : '' }}">
+                    <a href="{{  route('master.category_tag.index')}}" class="submenu-link">Kategori tag</a>
+                </li>
+                @endrole
             </ul>
         </li>
         @endhasanyrole
@@ -65,27 +70,27 @@
 
             <ul class="submenu">
                 <li class="submenu-item">
-                    <a href="" class="submenu-link">Praktikum</a>
+                    <a href="#" class="submenu-link">Praktikum</a>
                 </li>
                 <li class="submenu-item">
-                    <a href="" class="submenu-link">Tugas Akhir Mahasiswa</a>
+                    <a href="#" class="submenu-link">Tugas Akhir Mahasiswa</a>
                 </li>
                 <li class="submenu-item">
-                    <a href="" class="submenu-link">Prestasi Mahasiswa</a>
+                    <a href="#" class="submenu-link">Prestasi Mahasiswa</a>
                 </li>
                 <li class="submenu-item">
-                    <a href="" class="submenu-link">Praktik Kerja Nyata</a>
+                    <a href="#" class="submenu-link">Praktik Kerja Nyata</a>
                 </li>
                 <li class="submenu-item">
-                    <a href="" class="submenu-link">Unduhan</a>
+                    <a href="#" class="submenu-link">Unduhan</a>
                 </li>
             </ul>
         </li>
         @endhasanyrole
 
         @hasanyrole('administrator|admin')
-        <li class="sidebar-item">
-            <a href="" class='sidebar-link'>
+        <li class="sidebar-item {{ request()->is('adm/blog*') ? 'active' : '' }}">
+            <a href="{{ route('adm.blog.index') }}" class='sidebar-link'>
                 <i class="bi bi-newspaper"></i>
                 <span>Blog & Artikel</span>
             </a>

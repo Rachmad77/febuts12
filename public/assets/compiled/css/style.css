@@ -1,0 +1,175 @@
+:root {
+    --uts-blue: #003366 ;
+    --uts-gold: #F4B400;
+}
+
+body{
+    font-family: 'Poppins', sans-serif;
+}
+
+/* header biru buat navbar */
+.top-header{
+    background-color: var(--uts-blue);
+    height: 60px;
+}
+
+/* warna dasar navbar */
+.navbar-brand, .nav-link{
+    color: var(--uts-blue) !important;
+    font-weight: 600;
+    transition: all 0,3s ease;
+    border-radius: 6px;
+    padding:6px 12px;
+}
+
+/* Efek Hover - warna UTS biru dan teks putih */
+.narbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .nav-item.show .nav-link{
+    background-color: var(--uts-blue);
+    color: #fff !important;
+}
+
+/* Dropdown menu biar tidak bentrok */
+.dropdown-menu{
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.dropdown-item:hover{
+    background-color: var(--uts-blue);
+    color: #fff;
+}
+
+/* Efek hover langsung aktif saat diarahkan */
+.navbar .nav-item:hover > .nav-link {
+  background-color: var(--uts-blue);
+  color: #fff !important;
+}
+
+/* Dropdown item juga langsung muncul pas di-hover */
+.navbar .nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0; /* biar nempel rapi */
+}
+
+/* Hero */
+.hero-section{
+    position: relative;
+    background: url("../../img/banner2.jpg") center center / cover no-repeat;
+    height: 80vh;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-overlay{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.hero-content{
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+}
+
+/* ✅ Responsive settings */
+@media (max-width: 992px) { /* Tablet */
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+    .hero-content p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) { /* HP */
+    .hero-section {
+        height: 60vh;
+        background-position: top;
+    }
+    .hero-content h1 {
+        font-size: 1.8rem;
+    }
+    .hero-content p {
+        font-size: 0.9rem;
+    }
+}
+
+
+.btn-uts{
+    background-color: var(--uts-gold);
+    color: var(--uts-blue);
+    font-weight: 600;
+    border: none;
+}
+
+.btn-uts:hover{
+    background-color: #e0a800;
+}
+
+/* Section Tittles */
+.section-titles{
+    color:var(--uts-blue);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+}
+
+/* Footer */
+footer{
+    background-color: var(--uts-blue);
+    color:white;
+    padding: 30px 0;
+    text-align: center;
+}
+
+footer a{
+    color:var(--uts-gold);
+    text-decoration: none;
+}
+
+footer a:hover{
+    text-decoration: underline;
+}
+
+.logo-img {
+    max-width: 170px; /*atau kalau lebih kecil gunakan 200 px*/
+    height: 55px;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.text-white{
+    alignment-baseline: middle;
+    color:#fff; 
+}
+
+.divider{
+    width: 2px;
+    height: 40px;
+    background-color: var(--uts-blue);
+    margin: 0 8px;
+    opacity: 0.7;
+}
+
+.faculty-text span{
+    font-size: 18px;
+    color: #002f6c;
+}

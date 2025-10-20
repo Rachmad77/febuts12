@@ -7,11 +7,13 @@ use App\Http\Controllers\Adm\PermissionController;
 use App\Http\Controllers\Adm\RoleController;
 use App\Http\Controllers\Adm\UserController;
 use App\Http\Controllers\Adm\ProgramStudiController;
+use App\Http\Controllers\Adm\TagCategoryController;
+use App\Http\Controllers\Adm\BlogController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -74,7 +76,24 @@ Route::middleware('auth')->group(function () {
         Route::delete('/programstudi/{id}', [ProgramStudiController::class, 'destroy'])->name('programstudi.destroy');
         Route::put('/programstudi/restore/{id}', [ProgramStudiController::class, 'restore'])->name('programstudi.restore');
         Route::delete('/programstudi/force-delete/{id}', [ProgramStudiController::class, 'forceDelete'])->name('programstudi.force-delete');
+
+        Route::get('/category_tag', [TagCategoryController::class, 'index'])->name('category_tag.index');
+        Route::post('/category_tag', [TagCategoryController::class, 'store'])->name('category_tag.store');
+        Route::get('/category_tag/{id}', [TagCategoryController::class, 'edit'])->name('category_tag.edit');
+        Route::put('/category_tag/{id}', [TagCategoryController::class, 'update'])->name('category_tag.update');
+        Route::delete('/category_tag/{id}', [TagCategoryController::class, 'destroy'])->name('category_tag.destroy');
+        Route::put('/category_tag/restore/{id}', [TagCategoryController::class, 'restore'])->name('category_tag.restore');
+        Route::delete('/category_tag/force-delete/{id}', [TagCategoryController::class, 'forceDelete'])->name('category_tag.force-delete');
+    });
+
+    Route::prefix('adm')->name('adm.')->group(function() {
+        Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+        Route::post('/blog', [BlogController::class, 'store'])->name('blog.store');
+        Route::get('/blog/{id}/edit', [BlogController::class, 'edit'])->name('blog.edit');
+        Route::put('/blog/{id}', [BlogController::class, 'update'])->name('blog.update');
+        Route::delete('/blog/{id}', [BlogController::class, 'destroy'])->name('blog.destroy');
     });
 });
+
 
 require __DIR__ . '/auth.php';
