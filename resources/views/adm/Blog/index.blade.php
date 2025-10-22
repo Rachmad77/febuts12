@@ -3,6 +3,7 @@
 @section('css')
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endsection
 
 @section('content')
@@ -59,31 +60,58 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="form-blog">
+                    <form id="form-blog" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="id" id="id">
+
+                        {{-- Judul --}}
                         <div class="mb-3">
                             <label for="title" class="form-label">Judul</label>
                             <input type="text" class="form-control" id="title" name="title">
                             <span class="text-danger" id="title_error"></span>
                         </div>
 
+                        {{-- Kategori --}}
                         <div class="mb-3">
-                            <label for="category_id" class="form-label">Kategori</label>
-                            <select id="category_id" name="category_id" class="form-control">
+                            <label for="blog_category_id" class="form-label">Kategori</label>
+                            <select id="blog_category_id" name="blog_category_id" class="form-control">
                                 <option value="">-- Pilih Kategori --</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
-                            <span class="text-danger" id="category_id_error"></span>
+                            <span class="text-danger" id="blog_category_id_error"></span>
                         </div>
 
+                        {{-- Tag --}}
                         <div class="mb-3">
                             <label for="tags" class="form-label">Tag</label>
-                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Pisahkan dengan koma (,)" />
+                            <select id="tags" name="tags[]" class="form-control" multiple>
+                                @foreach($tags as $tag)
+                                    <option value="{{ $tag->id }}">{{ $tag->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
 
+                        {{-- Thumbnail --}}
+                        <div class="mb-3">
+                            <label for="thumbnail" class="form-label">Thumbnail</label>
+                            <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*">
+                            <small class="text-muted">Format: JPG, PNG, atau JPEG.</small>
+                        </div>
+
+                        {{-- Status --}}
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select id="status" name="status" class="form-control">
+                                <option value="">-- Pilih Status --</option>
+                                @foreach($statuses as $status)
+                                    <option value="{{ $status }}">{{ ucfirst($status) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Konten --}}
                         <div class="mb-3">
                             <label for="content" class="form-label">Konten</label>
                             <textarea id="content" name="content" class="form-control" rows="6"></textarea>
@@ -104,19 +132,19 @@
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
 $(document).ready(function () {
-    CKEDITOR.replace('content');
 
-    // Setup AJAX CSRF
     $.ajaxSetup({
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
     });
 
-    // DataTable
     let table = $('#blog-table').DataTable({
         processing: true,
         serverSide: true,
@@ -131,19 +159,49 @@ $(document).ready(function () {
         ],
     });
 
-    // Tampilkan modal tambah
+    // Select2 config
+    $('#tags').select2({
+        placeholder: 'Pilih tag',
+        width: '100%',
+        closeOnSelect: false,
+        allowClear: true,
+    });
+
+    $('#modal-form').on('shown.bs.modal', function () {
+        $('#tags').select2({
+            placeholder: 'Pilih tag',
+            width: '100%',
+            closeOnSelect: false,
+            allowClear: true,
+        });
+    });
+
+    // 🔹 CKEditor 5 Setup
+    let editorInstance;
+    ClassicEditor
+        .create(document.querySelector('#content'))
+        .then(editor => {
+            editorInstance = editor;
+        })
+        .catch(error => console.error(error));
+
+    // 🔹 Tombol tambah data
     $('#add-show-form').click(function(){
         $('#modal-form').modal('show');
         $('#form-blog')[0].reset();
-        CKEDITOR.instances['content'].setData('');
         $('#id').val('');
+        $('#tags').val([]).trigger('change');
+
+        if (editorInstance) {
+            editorInstance.setData('');
+        }
     });
 
-    // Simpan Blog
+    // 🔹 Tombol simpan
     $('#btn-save').click(function(e){
         e.preventDefault();
         let formData = new FormData($('#form-blog')[0]);
-        formData.append('content', CKEDITOR.instances['content'].getData());
+        formData.set('content', editorInstance.getData());
 
         $.ajax({
             url: "{{ route('adm.blog.store') }}",
@@ -155,6 +213,9 @@ $(document).ready(function () {
                 if(response.success){
                     toastr.success(response.message);
                     $('#modal-form').modal('hide');
+                    $('#form-blog')[0].reset();
+                    editorInstance.setData('');
+                    $('#tags').val([]).trigger('change');
                     table.ajax.reload();
                 } else {
                     toastr.error(response.message);
@@ -165,9 +226,10 @@ $(document).ready(function () {
                     let errors = xhr.responseJSON.errors;
                     $('#title_error').text(errors.title ? errors.title[0] : '');
                     $('#content_error').text(errors.content ? errors.content[0] : '');
-                    $('#category_id_error').text(errors.category_id ? errors.category_id[0] : '');
+                    $('#blog_category_id_error').text(errors.blog_category_id ? errors.blog_category_id[0] : '');
+                    toastr.error('Data tidak valid, periksa kembali form kamu!');
                 } else {
-                    toastr.error('Terjadi kesalahan!');
+                    toastr.error('Terjadi kesalahan pada server!');
                 }
             }
         });

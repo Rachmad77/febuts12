@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Blog;
 use App\Models\BlogCategory;
+use App\Models\TagCategory;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -38,7 +39,7 @@ class BlogController extends Controller
                     return '-';
                 })
                 ->addColumn('status', function ($row) {
-                    $badgeClass = match($row->status) {
+                    $badgeClass = match ($row->status) {
                         'published' => 'success',
                         'draft' => 'secondary',
                         'archived' => 'warning',
@@ -48,24 +49,44 @@ class BlogController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     return '
-                        <a href="'.route('adm.blog.edit', $row->id).'" class="btn btn-sm btn-primary">Edit</a>
-                        <button data-id="'.$row->id.'" class="btn btn-sm btn-danger btn-delete">Hapus</button>
+                        <a href="' . route('adm.blog.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>
+                        <button data-id="' . $row->id . '" class="btn btn-sm btn-danger btn-delete">Hapus</button>
                     ';
                 })
                 ->rawColumns(['thumbnail', 'status', 'action'])
                 ->make(true);
         }
 
+        // ✅ tambahkan status di index
+        $statuses = [
+            'draft' => 'Draft',
+            'published' => 'Published',
+            'archived' => 'Archived',
+        ];
+
+        // ini penting! harus di bawah ini biar ke-load di view
         $categories = BlogCategory::all();
-        return view('adm.blog.index', compact('categories'));
+         $tags = TagCategory::all();
+
+        return view('adm.blog.index', compact('categories', 'tags', 'statuses'));
     }
 
     public function create()
     {
         $categories = BlogCategory::all();
+        $tags = TagCategory::all();
+
+        $statuses = [
+            'draft' => 'Draft',
+            'published' => 'Published',
+            'archived' => 'Archived',
+        ];
+
         return view('adm.blog.form', [
             'blog' => new Blog(),
             'categories' => $categories,
+            'tags' => $tags,
+            'statuses' => $statuses,
             'action' => route('adm.blog.store'),
             'method' => 'POST',
         ]);
@@ -76,13 +97,23 @@ class BlogController extends Controller
         $request->validate([
             'blog_category_id' => 'required|exists:blog_categories,id',
             'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|unique:blogs,slug',
             'content' => 'required',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $data = $request->only(['blog_category_id', 'title', 'content', 'status']);
-        $data['slug'] = Str::slug($request->title);
         $data['status'] = $request->status ?? 'draft';
+
+        // ✅ perbaikan slug unik
+        $baseSlug = Str::slug($request->slug ?? $request->title);
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while (Blog::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter++;
+        }
+        $data['slug'] = $slug;
 
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('blog-thumbnails', 'public');
@@ -92,19 +123,32 @@ class BlogController extends Controller
             $data['published_at'] = Carbon::now();
         }
 
-        Blog::create($data);
+        $blog = Blog::create($data);
+
+        if ($request->has('tags')) {
+            $blog->tags()->attach($request->tags);
+        }
 
         return redirect()->route('adm.blog.index')->with('success', 'Blog berhasil ditambahkan!');
     }
 
     public function edit($id)
     {
-        $blog = Blog::findOrFail($id);
+        $blog = Blog::with('tags')->findOrFail($id);
         $categories = BlogCategory::all();
+        $tags = TagCategory::all();
+
+        $statuses = [
+            'draft' => 'Draft',
+            'published' => 'Published',
+            'archived' => 'Archived',
+        ];
 
         return view('adm.blog.form', [
             'blog' => $blog,
             'categories' => $categories,
+            'tags' => $tags,
+            'statuses' => $statuses,
             'action' => route('adm.blog.update', $blog->id),
             'method' => 'PUT',
         ]);
@@ -117,18 +161,31 @@ class BlogController extends Controller
         $request->validate([
             'blog_category_id' => 'required|exists:blog_categories,id',
             'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|unique:blogs,slug,' . $id,
             'content' => 'required',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'status' => 'nullable|in:draft,published,archived',
         ]);
 
         $data = $request->only(['blog_category_id', 'title', 'content', 'status']);
-        $data['slug'] = Str::slug($request->title);
+
+        // ✅ perbaikan slug unik saat update
+        $baseSlug = Str::slug($request->slug ?? $request->title);
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while (Blog::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+            $slug = $baseSlug . '-' . $counter++;
+        }
+
+        $data['slug'] = $slug;
 
         if ($request->hasFile('thumbnail')) {
-            // Hapus thumbnail lama
+            // hapus thumbnail lama
             if ($blog->thumbnail && Storage::disk('public')->exists($blog->thumbnail)) {
                 Storage::disk('public')->delete($blog->thumbnail);
             }
+
             $data['thumbnail'] = $request->file('thumbnail')->store('blog-thumbnails', 'public');
         }
 
@@ -137,6 +194,7 @@ class BlogController extends Controller
         }
 
         $blog->update($data);
+        $blog->tags()->sync($request->tags ?? []);
 
         return redirect()->route('adm.blog.index')->with('success', 'Blog berhasil diperbarui!');
     }
