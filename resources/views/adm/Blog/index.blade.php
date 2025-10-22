@@ -87,7 +87,11 @@
                         <div class="mb-3">
                             <label for="tags" class="form-label">Tag</label>
                             <select id="tags" name="tags[]" class="form-control" multiple>
-                                @foreach($tags as $tag)
+                                {{-- @foreach($tags as $tag)
+                                    <option value="{{ $tag->id }}">{{ $tag->name }}</option>
+                                @endforeach --}}
+                                <option value="">--Pilih Tag--</option>
+                                @foreach ($tags as $tag)
                                     <option value="{{ $tag->id }}">{{ $tag->name }}</option>
                                 @endforeach
                             </select>
@@ -148,7 +152,7 @@ $(document).ready(function () {
     let table = $('#blog-table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('adm.blog.index') }}",
+        ajax: "{{ route('adm.blog.data') }}", // 🟢 ganti ke route baru
         columns: [
             { data: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false },
             { data: 'title', name: 'title' },
@@ -158,7 +162,6 @@ $(document).ready(function () {
             { data: 'action', name: 'action', className: 'text-center' },
         ],
     });
-
     // Select2 config
     $('#tags').select2({
         placeholder: 'Pilih tag',
@@ -167,14 +170,14 @@ $(document).ready(function () {
         allowClear: true,
     });
 
-    $('#modal-form').on('shown.bs.modal', function () {
-        $('#tags').select2({
-            placeholder: 'Pilih tag',
-            width: '100%',
-            closeOnSelect: false,
-            allowClear: true,
-        });
-    });
+    // $('#modal-form').on('shown.bs.modal', function () {
+    //     $('#tags').select2({
+    //         placeholder: 'Pilih tag',
+    //         width: '100%',
+    //         closeOnSelect: false,
+    //         allowClear: true,
+    //     });
+    // });
 
     // 🔹 CKEditor 5 Setup
     let editorInstance;

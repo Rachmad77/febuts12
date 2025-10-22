@@ -66,10 +66,50 @@ class BlogController extends Controller
 
         // ini penting! harus di bawah ini biar ke-load di view
         $categories = BlogCategory::all();
-         $tags = TagCategory::all();
-
+        $tags = TagCategory::all();
+        dd($tags);
         return view('adm.blog.index', compact('categories', 'tags', 'statuses'));
     }
+
+    public function dataTable(Request $request)
+{
+    $query = Blog::with('category')->select('blogs.*');
+
+    if ($request->filled('category_id')) {
+        $query->where('blog_category_id', $request->category_id);
+    }
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    return DataTables::of($query)
+        ->addIndexColumn()
+        ->addColumn('category', fn($row) => $row->category ? $row->category->name : '-')
+        ->addColumn('thumbnail', function ($row) {
+            if ($row->thumbnail) {
+                return '<img src="' . asset('storage/' . $row->thumbnail) . '" width="80" class="rounded">';
+            }
+            return '-';
+        })
+        ->addColumn('status', function ($row) {
+            $badgeClass = match ($row->status) {
+                'published' => 'success',
+                'draft' => 'secondary',
+                'archived' => 'warning',
+                default => 'secondary'
+            };
+            return '<span class="badge bg-' . $badgeClass . '">' . ucfirst($row->status) . '</span>';
+        })
+        ->addColumn('action', function ($row) {
+            return '
+                <a href="' . route('adm.blog.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>
+                <button data-id="' . $row->id . '" class="btn btn-sm btn-danger btn-delete">Hapus</button>
+            ';
+        })
+        ->rawColumns(['thumbnail', 'status', 'action'])
+        ->make(true);
+}
 
     public function create()
     {
