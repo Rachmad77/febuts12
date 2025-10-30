@@ -67,21 +67,21 @@ class BlogController extends Controller
         // ini penting! harus di bawah ini biar ke-load di view
         $categories = BlogCategory::all();
         $tags = TagCategory::all();
-        dd($tags);
+        // dd($tags);
         return view('adm.blog.index', compact('categories', 'tags', 'statuses'));
     }
 
     public function dataTable(Request $request)
-{
-    $query = Blog::with('category')->select('blogs.*');
+    {
+        $query = Blog::with('category')->select('blogs.*');
 
-    if ($request->filled('category_id')) {
-        $query->where('blog_category_id', $request->category_id);
-    }
+        if ($request->filled('category_id')) {
+            $query->where('blog_category_id', $request->category_id);
+        }
 
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
 
     return DataTables::of($query)
         ->addIndexColumn()
@@ -109,7 +109,7 @@ class BlogController extends Controller
         })
         ->rawColumns(['thumbnail', 'status', 'action'])
         ->make(true);
-}
+    }   
 
     public function create()
     {

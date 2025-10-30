@@ -86,11 +86,12 @@
                         {{-- Tag --}}
                         <div class="mb-3">
                             <label for="tags" class="form-label">Tag</label>
+                            {{-- <p>{{ $tags->count() }} tag ditemukan</p> --}}
                             <select id="tags" name="tags[]" class="form-control" multiple>
                                 {{-- @foreach($tags as $tag)
                                     <option value="{{ $tag->id }}">{{ $tag->name }}</option>
                                 @endforeach --}}
-                                <option value="">--Pilih Tag--</option>
+                                {{-- <option value="">--Pilih Tag--</option> --}}
                                 @foreach ($tags as $tag)
                                     <option value="{{ $tag->id }}">{{ $tag->name }}</option>
                                 @endforeach
@@ -162,22 +163,34 @@ $(document).ready(function () {
             { data: 'action', name: 'action', className: 'text-center' },
         ],
     });
+
     // Select2 config
+    // $('#tags').select2({
+    //     placeholder: 'Pilih tag',
+    //     width: '100%',
+    //     closeOnSelect: false,
+    //     allowClear: true,
+    // });
+
     $('#tags').select2({
-        placeholder: 'Pilih tag',
+        placeholder: '-- Pilih tag --',
         width: '100%',
         closeOnSelect: false,
         allowClear: true,
+        dropdownParent: $('#modal-form'),
+        templateResult: function (data) {
+            if (!data.id) {
+                return data.text;
+            }
+            return $('<span>#' + data.text + '</span>');
+        },
+        templateSelection: function (data) {
+            if (!data.id) {
+                return data.text;
+            }
+            return $('<span class="badge bg-primary me-1">#' + data.text + '</span>');
+        }
     });
-
-    // $('#modal-form').on('shown.bs.modal', function () {
-    //     $('#tags').select2({
-    //         placeholder: 'Pilih tag',
-    //         width: '100%',
-    //         closeOnSelect: false,
-    //         allowClear: true,
-    //     });
-    // });
 
     // 🔹 CKEditor 5 Setup
     let editorInstance;
