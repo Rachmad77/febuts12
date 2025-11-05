@@ -134,6 +134,7 @@ class BlogController extends Controller
 
     public function store(Request $request)
     {
+        dd($request->all());
         $request->validate([
             'blog_category_id' => 'required|exists:blog_categories,id',
             'title' => 'required|string|max:255',
@@ -146,7 +147,8 @@ class BlogController extends Controller
         $data['status'] = $request->status ?? 'draft';
 
         // ✅ perbaikan slug unik
-        $baseSlug = Str::slug($request->slug ?? $request->title);
+        // $baseSlug = Str::slug($request->slug ?? $request->title);
+        $baseSlug = Str::slug($request->title);
         $slug = $baseSlug;
         $counter = 2;
 
