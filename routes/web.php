@@ -93,6 +93,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/blog/{id}', [BlogController::class, 'update'])->name('blog.update');
         Route::delete('/blog/{id}', [BlogController::class, 'destroy'])->name('blog.destroy');
         Route::get('/blog/data', [BlogController::class, 'dataTable'])->name('blog.data');
+        Route::put('/master/blog/restore/{id}', [BlogController::class, 'restore']);
+        Route::delete('/master/blog/force-delete/{id}', [BlogController::class, 'forceDelete']);
     });
 });
 

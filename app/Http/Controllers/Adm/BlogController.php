@@ -78,7 +78,10 @@ class BlogController extends Controller
         $categories = BlogCategory::all();
         $tags = TagCategory::all();
         // dd($tags);
-        return view('adm.blog.index', compact('categories', 'tags', 'statuses'));
+
+        $recycle = Blog::onlyTrashed()->get();
+
+        return view('adm.blog.index', compact('categories', 'tags', 'statuses', 'recycle'));
     }
 
     public function dataTable(Request $request)
@@ -289,20 +292,42 @@ class BlogController extends Controller
     public function destroy($id)
     {
         $blog = Blog::findOrFail($id);
-
-        // Hapus thumbnail jika ada
-        if ($blog->thumbnail && Storage::disk('public')->exists($blog->thumbnail)) {
-            Storage::disk('public')->delete($blog->thumbnail);
-        }
-
-        // Hapus relasi tags (penting untuk many to many)
-        $blog->tags()->detach();
-
-        // Hapus data blog
-        $blog->delete();
+        $blog->delete(); // soft delete
 
         return response()->json([
             'success' => true, 
             'message' => 'Blog berhasil dihapus!']);
+    }
+
+    public function restore($id)
+    {
+        $blog = Blog::withTrashed()->findorFail($id);
+        $blog->restore();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data blog berhasil dipulihkan'
+        ]);
+    }
+
+    Public function forceDelete($id)
+    {
+        $blog = Blog::withTrashed()->findorFail($id);
+
+        // Hapus thumbnail 
+        if($blog->thumbnail && Storage::disk('public')->exists($blog->thumbnail)){
+            Storage::disk('public')->delete($blog->thumbnail);
+        }
+
+        // Hapus relasi tags
+        $blog->tags()->detach();
+
+        // Hapus permanen
+        $blog->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data blog berhasil dihapus permanen'
+        ]);
     }
 }

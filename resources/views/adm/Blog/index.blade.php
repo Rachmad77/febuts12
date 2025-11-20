@@ -28,7 +28,12 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title">Daftar Blog</h5>
-                <button type="button" class="btn btn-primary" id="add-show-form">Tambah Data</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary" id="add-show-form">Tambah Data</button>
+                    <button type="button" class="btn btn-warning" id="show-recycle-form">
+                        <i class="bi bi-recycle"></i>
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -139,6 +144,50 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Recycle -->
+ <div class="modal fade" id="recycle-form" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Recycle Blog</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Judul</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($recycle as $item)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $item->title}}</td>
+                            <td>
+                                <button class="btn btn-success btn-sm btn-restore" data-id="{{ $item->id }}">
+                                    Restore
+                                </button>
+
+                                <button class="btn btn-danger btn-sm btn-force-delete" data-id="{{ $item->id }}">
+                                    Hapus permanen
+                                </button>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr><td colspan="3" class="text-center">Tidak ada data</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+ </div>
 @endsection
 
 @section('js')
@@ -336,7 +385,7 @@ $(document).ready(function () {
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelBbuttonColor: '#3085d6',
+            cancelButtonColor: '#3085d6',
             confirmButtonText: 'Ya, hapus!',
             cancelButtonText : 'Batal'
         }).then((result)=> {
@@ -379,6 +428,12 @@ $(document).ready(function () {
         } else {
             $('#preview-thumbnail').html('');
         }
+    });
+
+    // Tombol recycle
+    $('#show-recycle-form').on('click', function(){
+        let recycleModal = new bootstrap.Modal(document.getElementById('recycle-form'));
+        recycleModal.show();
     });
 });
 </script>

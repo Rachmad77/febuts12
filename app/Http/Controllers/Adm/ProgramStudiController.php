@@ -35,7 +35,11 @@ class ProgramStudiController extends Controller
             ->addIndexColumn()
             ->make(true);
     }
-    return view('adm.master.programstudi');
+
+    //rycecle
+    $recycle = ProgramStudi::onlyTrashed()->get();
+
+    return view('adm.master.programstudi', compact('recycle'));
 }
 
     /**
@@ -141,7 +145,7 @@ class ProgramStudiController extends Controller
 
     public function restore($id)
     {
-         $data = ProgramStudi::withTrashed()->findOrFail($id);
+        $data = ProgramStudi::withTrashed()->findOrFail($id);
         $data->restore();
 
         if ($data) {

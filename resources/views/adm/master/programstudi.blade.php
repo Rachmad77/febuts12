@@ -34,6 +34,9 @@
                         <button type="button" class="btn btn-primary block" data-bs-toggle="modal" id="add-show-form">
                             Tambah Data
                         </button>
+                        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#recycleModal">
+                            <i class="fas fa-recycle"></i>Recycle Bin
+                        </button>
                     </div>
                 </div>
             </div>
@@ -128,8 +131,35 @@
         </div>
     </section>
     <!-- Basic Tables end -->
-
 </div>
+
+<!-- Modal Recycle -->
+ <div class="modal fade" id="recycleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Recycle Bin Program Studi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-baby">
+                <table class="table" id="recycleTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Kode</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Telepon</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+ </div>
+
 @endsection
 
 @section('js')
@@ -425,5 +455,48 @@
             }
         });
     });
+
+    $('$recycleTable').DataTable({
+        processing: true,
+        serverRide: true,
+        ajax: "{{ route('master.programstudi.trash}}"
+        columns: [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-center' },
+            { data: 'code', name: 'code', className: 'text-center' },
+            { data: 'name', name: 'name', className: 'text-start' },
+            { data: 'email', name: 'email', className: 'text-center' },
+            { data: 'phone', name: 'phone', className: 'text-center' },
+            { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
+        ], 
+    });
+
+    $(document).on('click', '.btn-restore', function(){
+        let id = $(this).data("id");
+
+        $.ajax({
+            url: "/master/programstudi/restore/" + id,
+            type: "POST",
+            data: {_token: "{{ csrf_token()}}"},
+            success: function(response){
+                toastr.success(response.message);
+                $('#recycleTable').DataTable().ajax.reload();
+                $('#programstudi').DataTable().ajax.reload();
+            }
+        });
+    });
+
+    $(document).on('click', '.btn-force-delete', function(){
+        let id = $(this).add("id");
+
+        $.ajax({
+            url: "/master/programstudi/force-delete/" + id,
+            type: "DELETE",
+            data: {_token: "{{ csrf_token()}}"},
+            success: function(response){
+                toastr.success(response.message);
+                $('#recycleTable').DataTable().ajax.reload();
+            }
+        })
+    })
 </script>
 @endsection
