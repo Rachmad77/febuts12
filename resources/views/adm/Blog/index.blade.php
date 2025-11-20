@@ -39,7 +39,7 @@
                                 <th>Judul</th>
                                 <th>Kategori</th>
                                 <th>Tag</th>
-                                <th>Tanggal</th>
+                                <th>Status</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -102,7 +102,10 @@
                         <div class="mb-3">
                             <label for="thumbnail" class="form-label">Thumbnail</label>
                             <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*">
-                            <small class="text-muted">Format: JPG, PNG, atau JPEG.</small>
+                            <small class="text-muted d-block mb-2">Format: JPG, PNG, atau JPEG.</small>
+
+                            {{-- Tempat preview thumbnail lama --}}
+                            <div id="preview-thumbnail" class="mt-2"></div>
                         </div>
 
                         {{-- Status --}}
@@ -110,8 +113,11 @@
                             <label for="status" class="form-label">Status</label>
                             <select id="status" name="status" class="form-control">
                                 <option value="">-- Pilih Status --</option>
-                                @foreach($statuses as $status)
+                                <!-- @foreach($statuses as $status)
                                     <option value="{{ $status }}">{{ ucfirst($status) }}</option>
+                                @endforeach -->
+                                @foreach($statuses as $key => $label)
+                                    <option value="{{ $key }}">{{ $label }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -142,13 +148,20 @@
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 
 <script>
+
+let modalBlog;
+
 $(document).ready(function () {
 
     $.ajaxSetup({
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
     });
+
+    $.fn.modal || console.error("Bootstrap modal tidak terdeteksi!");
 
     let table = $('#blog-table').DataTable({
         processing: true,
@@ -159,18 +172,11 @@ $(document).ready(function () {
             { data: 'title', name: 'title' },
             { data: 'category', name: 'category' },
             { data: 'tags', name: 'tags' },
-            { data: 'created_at', name: 'created_at' },
-            { data: 'action', name: 'action', className: 'text-center' },
+            // { data: 'created_at', name: 'created_at' },
+            { data: 'status', name:'status'},
+            { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' },
         ],
     });
-
-    // Select2 config
-    // $('#tags').select2({
-    //     placeholder: 'Pilih tag',
-    //     width: '100%',
-    //     closeOnSelect: false,
-    //     allowClear: true,
-    // });
 
     $('#tags').select2({
         placeholder: '-- Pilih tag --',
@@ -192,6 +198,9 @@ $(document).ready(function () {
         }
     });
 
+    // const modalFormEl = document.getElementById('modal-form');
+    // const modalForm = bootstrap.Modal.getOrCreateInstance(modalFormEl);
+
     // 🔹 CKEditor 5 Setup
     let editorInstance;
     ClassicEditor
@@ -207,6 +216,8 @@ $(document).ready(function () {
         $('#form-blog')[0].reset();
         $('#id').val('');
         $('#tags').val([]).trigger('change');
+        $('#preview-thumbnail').html(''); // 🔹 hapus preview lama waktu tambah data
+
 
         if (editorInstance) {
             editorInstance.setData('');
@@ -215,40 +226,159 @@ $(document).ready(function () {
 
     // 🔹 Tombol simpan
     $('#btn-save').click(function(e){
-        e.preventDefault();
-        let formData = new FormData($('#form-blog')[0]);
-        formData.set('content', editorInstance.getData());
+    e.preventDefault();
 
+    let formData = new FormData($('#form-blog')[0]);
+    formData.set('content', editorInstance.getData());
+
+    let id = $('#id').val();
+    let url = id ? "/adm/blog/" + id : "{{ route('adm.blog.store') }}";
+
+    if (id) {
+        formData.append('_method', 'PUT');
+    }
+
+    $.ajax({
+        url: url,
+        method: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        dataType : 'json',
+        success: function(response){
+            if(response.success){
+                toastr.success(response.message);
+
+                const modalEl = document.getElementById('modal-form');
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modalInstance.hide();
+
+                $('#form-blog')[0].reset();
+                editorInstance.setData('');
+                $('#tags').val([]).trigger('change');
+                $('#preview-thumbnail').html('');
+
+                table.ajax.reload(null, false);
+            } else {
+                toastr.error(response.message);
+            }
+        },
+        error: function(xhr){
+            if(xhr.status === 422){
+                let errors = xhr.responseJSON.errors;
+                $('#title_error').text(errors.title ? errors.title[0] : '');
+                $('#content_error').text(errors.content ? errors.content[0] : '');
+                $('#blog_category_id_error').text(errors.blog_category_id ? errors.blog_category_id[0] : '');
+                toastr.error('Data tidak valid, periksa kembali form kamu!');
+            } else {
+                toastr.error('Terjadi kesalahan pada server!');
+            }
+        }
+    });
+});
+
+
+    // Tombol Edit
+    $('#blog-table').on('click', '.btn-edit', function(){
+        let id= $(this).data('id');
+        $('#id').val(id);
+
+        //ambil data blog berdasarkan id
         $.ajax({
-            url: "{{ route('adm.blog.store') }}",
-            method: "POST",
-            data: formData,
-            contentType: false,
-            processData: false,
+            url: "/adm/blog/" + id + "/edit",
+            type: "GET",
             success: function(response){
-                if(response.success){
-                    toastr.success(response.message);
-                    $('#modal-form').modal('hide');
-                    $('#form-blog')[0].reset();
-                    editorInstance.setData('');
-                    $('#tags').val([]).trigger('change');
-                    table.ajax.reload();
+                let data = response.data;
+
+                // isi form
+                $('#title').val(data.title);
+                $('#blog_category_id').val(data.blog_category_id).trigger('change');
+                $('#tags').val(data.tags.map(t => t.id)).trigger('change');
+                $('#status').val(data.status).trigger('change');
+
+
+                //kode menampilkan preview gambar saat sudah dihosting
+                // let storagePath = "{{ asset('storage') }}";
+                // $('#preview-thumbnail').html(`
+                //     <img src="${storagePath}/${data.thumbnail}"
+                //         class="img-fluid rounded mt-2"
+                //         width="120">
+                // `);
+
+                if (data.thumbnail) {
+                    $('#preview-thumbnail').html(`
+                        <img src="{{ url('storage') }}/${data.thumbnail}" alt="Thumbnail lama" class="img-fluid rounded mt-2" width="120">
+                    `);
                 } else {
-                    toastr.error(response.message);
+                    $('#preview-thumbnail').html('');
                 }
+
+                if(editorInstance){
+                    editorInstance.setData(data.content || '');
+                }
+
+                //tampilkan modal
+                $('#modal-form').modal('show');
             },
             error: function(xhr){
-                if(xhr.status === 422){
-                    let errors = xhr.responseJSON.errors;
-                    $('#title_error').text(errors.title ? errors.title[0] : '');
-                    $('#content_error').text(errors.content ? errors.content[0] : '');
-                    $('#blog_category_id_error').text(errors.blog_category_id ? errors.blog_category_id[0] : '');
-                    toastr.error('Data tidak valid, periksa kembali form kamu!');
-                } else {
-                    toastr.error('Terjadi kesalahan pada server!');
-                }
+                toastr.error('Gagal Mengambil data Blog!');
+            }
+        })
+    })
+
+    // Tombol Hapus
+    $('#blog-table').on('click', '.btn-delete', function (){
+        let id = $(this).data('id');
+
+        Swal.fire({
+            title: 'Hapus Data?',
+            text: "Data bloga akan dihapus permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelBbuttonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText : 'Batal'
+        }).then((result)=> {
+            if(result.isConfirmed){
+
+                $.ajax({
+                    url: "/adm/blog/" + id,
+                    type: "POST",
+                    data: {
+                        _method: "DELETE",
+                        _token: $('meta[name="csrf-token"').attr('content')
+                    },
+                    success: function (response){
+                        if(response.success){
+                            toastr.success(response.message);
+                            $('#blog-table').DataTable().ajax.reload(null, false);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (){
+                        toastr.error('Gagal menghapus data!');
+                    }
+                });
             }
         });
+    });
+
+    // Preview otomatis saat user pilih file baru
+    $('#thumbnail').on('change', function(e){
+        const file = e.target.files[0];
+        if(file){
+            const reader = new FileReader();
+            reader.onload = function(e){
+                $('#preview-thumbnail').html(`
+                    <img src="${e.target.result}" alt="Preview" class="img-fluid rounded mt-2" width="120">
+                `);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#preview-thumbnail').html('');
+        }
     });
 });
 </script>

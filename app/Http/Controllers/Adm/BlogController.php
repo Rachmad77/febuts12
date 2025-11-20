@@ -17,7 +17,7 @@ class BlogController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Blog::with('category')->select('blogs.*');
+            $query = Blog::with(['category', 'tags'])->select('blogs.*');
 
             // Filter berdasarkan kategori
             if ($request->filled('category_id')) {
@@ -38,6 +38,9 @@ class BlogController extends Controller
                     }
                     return '-';
                 })
+                ->addColumn('tags', function ($row){
+                    return $row->tags ? $row->tags->pluck('name')->implode(', ') : '-';
+                })
                 ->addColumn('status', function ($row) {
                     $badgeClass = match ($row->status) {
                         'published' => 'success',
@@ -47,9 +50,16 @@ class BlogController extends Controller
                     };
                     return '<span class="badge bg-' . $badgeClass . '">' . ucfirst($row->status) . '</span>';
                 })
+
+                // ->addColumn('created_at', function ($row) {
+                //     return $row->created_at 
+                //     ? $row->created_at->timezone('Asia/Jakarta')->format('d M Y H:i') 
+                //     : '-';
+                // })
+
                 ->addColumn('action', function ($row) {
                     return '
-                        <a href="' . route('adm.blog.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="' . route('adm.blog.edit', $row->id) . '" class="btn btn-sm btn-primary btn-edit">Edit</a>
                         <button data-id="' . $row->id . '" class="btn btn-sm btn-danger btn-delete">Hapus</button>
                     ';
                 })
@@ -73,7 +83,7 @@ class BlogController extends Controller
 
     public function dataTable(Request $request)
     {
-        $query = Blog::with('category')->select('blogs.*');
+        $query = Blog::with(['category', 'tags'])->select('blogs.*');
 
         if ($request->filled('category_id')) {
             $query->where('blog_category_id', $request->category_id);
@@ -92,6 +102,11 @@ class BlogController extends Controller
             }
             return '-';
         })
+        
+        ->addColumn('tags', function ($row){
+                    return $row->tags ? $row->tags->pluck('name')->implode(', ') : '-';
+                })
+
         ->addColumn('status', function ($row) {
             $badgeClass = match ($row->status) {
                 'published' => 'success',
@@ -101,9 +116,10 @@ class BlogController extends Controller
             };
             return '<span class="badge bg-' . $badgeClass . '">' . ucfirst($row->status) . '</span>';
         })
+        // <a href="' . route('adm.blog.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a> 
         ->addColumn('action', function ($row) {
             return '
-                <a href="' . route('adm.blog.edit', $row->id) . '" class="btn btn-sm btn-primary">Edit</a>
+                <button data-id=' . $row->id . ' class="btn btn-sm btn-primary btn-edit">Edit</button>
                 <button data-id="' . $row->id . '" class="btn btn-sm btn-danger btn-delete">Hapus</button>
             ';
         })
@@ -122,7 +138,7 @@ class BlogController extends Controller
             'archived' => 'Archived',
         ];
 
-        return view('adm.blog.form', [
+        return view('adm.blog.index', [
             'blog' => new Blog(),
             'categories' => $categories,
             'tags' => $tags,
@@ -134,7 +150,9 @@ class BlogController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
+        try{
+
+        // dd($request->all());
         $request->validate([
             'blog_category_id' => 'required|exists:blog_categories,id',
             'title' => 'required|string|max:255',
@@ -171,7 +189,18 @@ class BlogController extends Controller
             $blog->tags()->attach($request->tags);
         }
 
-        return redirect()->route('adm.blog.index')->with('success', 'Blog berhasil ditambahkan!');
+        // return redirect()->route('adm.blog.index')->with('success', 'Blog berhasil ditambahkan!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog berhasil ditambahkan',
+        ]);
+
+        } catch(\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function edit($id)
@@ -186,13 +215,20 @@ class BlogController extends Controller
             'archived' => 'Archived',
         ];
 
-        return view('adm.blog.form', [
-            'blog' => $blog,
-            'categories' => $categories,
-            'tags' => $tags,
-            'statuses' => $statuses,
-            'action' => route('adm.blog.update', $blog->id),
-            'method' => 'PUT',
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $blog->id,
+                'title' => $blog->title,
+                'blog_category_id' => $blog->blog_category_id,
+                'status' => $blog->status,
+                'thumbnail' => $blog->thumbnail,
+                'content' => $blog->content,
+                'tags' => $blog->tags->map(fn($t)=>[
+                    'id' => $t->id,
+                    'name' => $t->name
+                ]),
+            ]
         ]);
     }
 
@@ -222,6 +258,7 @@ class BlogController extends Controller
 
         $data['slug'] = $slug;
 
+        //handle thumbnail
         if ($request->hasFile('thumbnail')) {
             // hapus thumbnail lama
             if ($blog->thumbnail && Storage::disk('public')->exists($blog->thumbnail)) {
@@ -231,26 +268,41 @@ class BlogController extends Controller
             $data['thumbnail'] = $request->file('thumbnail')->store('blog-thumbnails', 'public');
         }
 
+        //published_at otomatis
         if ($data['status'] === 'published' && !$blog->published_at) {
             $data['published_at'] = Carbon::now();
         }
 
+        //update blog
         $blog->update($data);
+
+        //sync tags
         $blog->tags()->sync($request->tags ?? []);
 
-        return redirect()->route('adm.blog.index')->with('success', 'Blog berhasil diperbarui!');
+        // return redirect()->route('adm.blog.index')->with('success', 'Blog berhasil diperbarui!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog berhasil diperbarui!'
+        ]);
     }
 
     public function destroy($id)
     {
         $blog = Blog::findOrFail($id);
 
+        // Hapus thumbnail jika ada
         if ($blog->thumbnail && Storage::disk('public')->exists($blog->thumbnail)) {
             Storage::disk('public')->delete($blog->thumbnail);
         }
 
+        // Hapus relasi tags (penting untuk many to many)
+        $blog->tags()->detach();
+
+        // Hapus data blog
         $blog->delete();
 
-        return response()->json(['success' => true, 'message' => 'Blog berhasil dihapus!']);
+        return response()->json([
+            'success' => true, 
+            'message' => 'Blog berhasil dihapus!']);
     }
 }
